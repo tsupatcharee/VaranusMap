@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet-heat.js"></script>
+        <script src="js/leaflet-svg-shape-markers.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Voronoipolygons_3.js"></script>
+        <script src="data/point_varanusheatmap_4.js"></script>
+        <script src="data/point_varanus_5.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[16.7338179427208,100.17539448577693],[16.75394746811143,100.21203067484561]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleSatelliteHybrid_0');
+        map.getPane('pane_GoogleSatelliteHybrid_0').style.zIndex = 400;
+        var layer_GoogleSatelliteHybrid_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatelliteHybrid_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_GoogleSatelliteHybrid_0;
+        map.addLayer(layer_GoogleSatelliteHybrid_0);
+        map.createPane('pane_GoogleMaps_1');
+        map.getPane('pane_GoogleMaps_1').style.zIndex = 401;
+        var layer_GoogleMaps_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleMaps_1',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_GoogleMaps_1;
+        map.createPane('pane_GoogleSatellite_2');
+        map.getPane('pane_GoogleSatellite_2').style.zIndex = 402;
+        var layer_GoogleSatellite_2 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_2',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_GoogleSatellite_2;
+        map.addLayer(layer_GoogleSatellite_2);
+        function pop_Voronoipolygons_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">id</th>\
+                        <td>' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">names</th>\
+                        <td>' + (feature.properties['names'] !== null ? autolinker.link(feature.properties['names'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">time</th>\
+                        <td>' + (feature.properties['time'] !== null ? autolinker.link(feature.properties['time'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>date</strong><br />' + (feature.properties['date'] !== null ? autolinker.link(feature.properties['date'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">habitat</th>\
+                        <td>' + (feature.properties['habitat'] !== null ? autolinker.link(feature.properties['habitat'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>quantity</strong><br />' + (feature.properties['quantity'] !== null ? autolinker.link(feature.properties['quantity'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">age_range</th>\
+                        <td>' + (feature.properties['age_range'] !== null ? autolinker.link(feature.properties['age_range'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">behavior</th>\
+                        <td>' + (feature.properties['behavior'] !== null ? autolinker.link(feature.properties['behavior'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">admin</th>\
+                        <td>' + (feature.properties['admin'] !== null ? autolinker.link(feature.properties['admin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">y</th>\
+                        <td>' + (feature.properties['y'] !== null ? autolinker.link(feature.properties['y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">x</th>\
+                        <td>' + (feature.properties['x'] !== null ? autolinker.link(feature.properties['x'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Voronoipolygons_3_0() {
+            return {
+                pane: 'pane_Voronoipolygons_3',
+                opacity: 1,
+                color: 'rgba(113,27,27,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 6.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(183,72,75,0.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Voronoipolygons_3');
+        map.getPane('pane_Voronoipolygons_3').style.zIndex = 403;
+        map.getPane('pane_Voronoipolygons_3').style['mix-blend-mode'] = 'normal';
+        var layer_Voronoipolygons_3 = new L.geoJson(json_Voronoipolygons_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Voronoipolygons_3',
+            layerName: 'layer_Voronoipolygons_3',
+            pane: 'pane_Voronoipolygons_3',
+            onEachFeature: pop_Voronoipolygons_3,
+            style: style_Voronoipolygons_3_0,
+        });
+        bounds_group.addLayer(layer_Voronoipolygons_3);
+        map.addLayer(layer_Voronoipolygons_3);
+        function pop_point_varanusheatmap_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['names'] !== null ? autolinker.link(feature.properties['names'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['time'] !== null ? autolinker.link(feature.properties['time'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['date'] !== null ? autolinker.link(feature.properties['date'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['habitat'] !== null ? autolinker.link(feature.properties['habitat'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['quantity'] !== null ? autolinker.link(feature.properties['quantity'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['age_range'] !== null ? autolinker.link(feature.properties['age_range'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['behavior'] !== null ? autolinker.link(feature.properties['behavior'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['admin'] !== null ? autolinker.link(feature.properties['admin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['y'] !== null ? autolinker.link(feature.properties['y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['x'] !== null ? autolinker.link(feature.properties['x'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        map.createPane('pane_point_varanusheatmap_4');
+        map.getPane('pane_point_varanusheatmap_4').style.zIndex = 404;
+        map.getPane('pane_point_varanusheatmap_4').style['mix-blend-mode'] = 'lighten';
+        var point_varanusheatmap_4_hm = geoJson2heat(json_point_varanusheatmap_4,
+                                      '');
+        var layer_point_varanusheatmap_4 = new L.heatLayer(point_varanusheatmap_4_hm, {
+            attribution: '',
+            interactive: true,
+            radius: 600,
+            max: 1,
+            minOpacity: 1,
+            gradient: {0: '#000004', 0.0196078: '#02020b', 0.0392157: '#050416', 0.0588235: '#090720', 0.0784314: '#0e0b2b', 0.0980392: '#140e36', 0.117647: '#1a1042', 0.137255: '#21114e', 0.156863: '#29115a', 0.176471: '#311165', 0.196078: '#390f6e', 0.215686: '#420f75', 0.235294: '#4a1079', 0.254902: '#52137c', 0.27451: '#5a167e', 0.294118: '#621980', 0.313725: '#6a1c81', 0.333333: '#721f81', 0.352941: '#792282', 0.372549: '#812581', 0.392157: '#892881', 0.411765: '#912b81', 0.431373: '#992d80', 0.45098: '#a1307e', 0.470588: '#aa337d', 0.490196: '#b2357b', 0.509804: '#ba3878', 0.529412: '#c23b75', 0.54902: '#ca3e72', 0.568627: '#d2426f', 0.588235: '#d9466b', 0.607843: '#e04c67', 0.627451: '#e75263', 0.647059: '#ec5860', 0.666667: '#f1605d', 0.686275: '#f4695c', 0.705882: '#f7725c', 0.72549: '#f97b5d', 0.745098: '#fb8560', 0.764706: '#fc8e64', 0.784314: '#fd9869', 0.803922: '#fea16e', 0.823529: '#feaa74', 0.843137: '#feb47b', 0.862745: '#febd82', 0.882353: '#fec68a', 0.901961: '#fecf92', 0.921569: '#fed89a', 0.941176: '#fde2a3', 0.960784: '#fdebac', 0.980392: '#fcf4b6', 1: '#fcfdbf'}});
+        bounds_group.addLayer(layer_point_varanusheatmap_4);
+        map.addLayer(layer_point_varanusheatmap_4);
+        function pop_point_varanus_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">id</th>\
+                        <td>' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">names</th>\
+                        <td>' + (feature.properties['names'] !== null ? autolinker.link(feature.properties['names'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">time</th>\
+                        <td>' + (feature.properties['time'] !== null ? autolinker.link(feature.properties['time'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">date</th>\
+                        <td>' + (feature.properties['date'] !== null ? autolinker.link(feature.properties['date'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">habitat</th>\
+                        <td>' + (feature.properties['habitat'] !== null ? autolinker.link(feature.properties['habitat'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">quantity</th>\
+                        <td>' + (feature.properties['quantity'] !== null ? autolinker.link(feature.properties['quantity'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">age_range</th>\
+                        <td>' + (feature.properties['age_range'] !== null ? autolinker.link(feature.properties['age_range'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">behavior</th>\
+                        <td>' + (feature.properties['behavior'] !== null ? autolinker.link(feature.properties['behavior'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">admin</th>\
+                        <td>' + (feature.properties['admin'] !== null ? autolinker.link(feature.properties['admin'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">y</th>\
+                        <td>' + (feature.properties['y'] !== null ? autolinker.link(feature.properties['y'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">x</th>\
+                        <td>' + (feature.properties['x'] !== null ? autolinker.link(feature.properties['x'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_point_varanus_5_0() {
+            return {
+                pane: 'pane_point_varanus_5',
+                shape: 'diamond',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(61,128,53,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(84,176,74,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_point_varanus_5');
+        map.getPane('pane_point_varanus_5').style.zIndex = 405;
+        map.getPane('pane_point_varanus_5').style['mix-blend-mode'] = 'normal';
+        var layer_point_varanus_5 = new L.geoJson(json_point_varanus_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_point_varanus_5',
+            layerName: 'layer_point_varanus_5',
+            pane: 'pane_point_varanus_5',
+            onEachFeature: pop_point_varanus_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_point_varanus_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_point_varanus_5);
+        map.addLayer(layer_point_varanus_5);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/point_varanus_5.png" /> point_varanus': layer_point_varanus_5,'<img src="legend/Voronoipolygons_3.png" /> Voronoi polygons': layer_Voronoipolygons_3,"Google Satellite": layer_GoogleSatellite_2,"Google Maps": layer_GoogleMaps_1,"Google Satellite Hybrid": layer_GoogleSatelliteHybrid_0,}).addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"age_range": "str","behavior": "str","habitat": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_age_range = document.createElement('div');
+            div_age_range.id = "div_age_range";
+            div_age_range.className= "filterselect";
+            document.getElementById("menu").appendChild(div_age_range);
+            sel_age_range = document.createElement('select');
+            sel_age_range.multiple = true;
+            sel_age_range.size = 3;
+            sel_age_range.id = "sel_age_range";
+            var age_range_options_str = "<option value='' unselected></option>";
+            sel_age_range.onchange = function(){filterFunc()};
+            age_range_options_str  += '<option value="ตัวเต็มวัย">ตัวเต็มวัย</option>';
+            age_range_options_str  += '<option value="วัยรุ่น">วัยรุ่น</option>';
+            age_range_options_str  += '<option value="ไม่ทราบ">ไม่ทราบ</option>';
+            sel_age_range.innerHTML = age_range_options_str;
+            div_age_range.appendChild(sel_age_range);
+            var lab_age_range = document.createElement('div');
+            lab_age_range.innerHTML = 'age_range';
+            lab_age_range.className = 'filterlabel';
+            div_age_range.appendChild(lab_age_range);
+            var reset_age_range = document.createElement('div');
+            reset_age_range.innerHTML = 'clear filter';
+            reset_age_range.className = 'filterlabel';
+            reset_age_range.onclick = function() {
+                var options = document.getElementById("sel_age_range").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_age_range.appendChild(reset_age_range);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_behavior = document.createElement('div');
+            div_behavior.id = "div_behavior";
+            div_behavior.className= "filterselect";
+            document.getElementById("menu").appendChild(div_behavior);
+            sel_behavior = document.createElement('select');
+            sel_behavior.multiple = true;
+            sel_behavior.size = 5;
+            sel_behavior.id = "sel_behavior";
+            var behavior_options_str = "<option value='' unselected></option>";
+            sel_behavior.onchange = function(){filterFunc()};
+            behavior_options_str  += '<option value="พับซาก">พับซาก</option>';
+            behavior_options_str  += '<option value="ว่ายน้ำ , พักผ่อน , ผสมพันธุ์ , พับซาก">ว่ายน้ำ , พักผ่อน , ผสมพันธุ์ , พับซาก</option>';
+            behavior_options_str  += '<option value="หากิน , พักผ่อน">หากิน , พักผ่อน</option>';
+            behavior_options_str  += '<option value="หากิน , ว่ายน้ำ , พักผ่อน">หากิน , ว่ายน้ำ , พักผ่อน</option>';
+            behavior_options_str  += '<option value="แย่งอาหาร , ต่อสู้">แย่งอาหาร , ต่อสู้</option>';
+            sel_behavior.innerHTML = behavior_options_str;
+            div_behavior.appendChild(sel_behavior);
+            var lab_behavior = document.createElement('div');
+            lab_behavior.innerHTML = 'behavior';
+            lab_behavior.className = 'filterlabel';
+            div_behavior.appendChild(lab_behavior);
+            var reset_behavior = document.createElement('div');
+            reset_behavior.innerHTML = 'clear filter';
+            reset_behavior.className = 'filterlabel';
+            reset_behavior.onclick = function() {
+                var options = document.getElementById("sel_behavior").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_behavior.appendChild(reset_behavior);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_habitat = document.createElement('div');
+            div_habitat.id = "div_habitat";
+            div_habitat.className= "filterselect";
+            document.getElementById("menu").appendChild(div_habitat);
+            sel_habitat = document.createElement('select');
+            sel_habitat.multiple = true;
+            sel_habitat.size = 3;
+            sel_habitat.id = "sel_habitat";
+            var habitat_options_str = "<option value='' unselected></option>";
+            sel_habitat.onchange = function(){filterFunc()};
+            habitat_options_str  += '<option value="อยู่บนบก">อยู่บนบก</option>';
+            habitat_options_str  += '<option value="อยู่ในน้ำ">อยู่ในน้ำ</option>';
+            habitat_options_str  += '<option value="อยู่ในน้ำ , อยู่บนบก">อยู่ในน้ำ , อยู่บนบก</option>';
+            sel_habitat.innerHTML = habitat_options_str;
+            div_habitat.appendChild(sel_habitat);
+            var lab_habitat = document.createElement('div');
+            lab_habitat.innerHTML = 'habitat';
+            lab_habitat.className = 'filterlabel';
+            div_habitat.appendChild(lab_habitat);
+            var reset_habitat = document.createElement('div');
+            reset_habitat.innerHTML = 'clear filter';
+            reset_habitat.className = 'filterlabel';
+            reset_habitat.onclick = function() {
+                var options = document.getElementById("sel_habitat").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_habitat.appendChild(reset_habitat);
+        function geoJson2heat(geojson, weight) {
+          return geojson.features.map(function(feature) {
+            return [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties[weight]
+            ];
+          });
+        }
+        </script>
+    </body>
+</html>
